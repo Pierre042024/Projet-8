@@ -23,7 +23,7 @@ if st.button("Afficher les informations du client"):
     # Vérifie si l'ID du client n'est pas vide
     if client_id:
         # Appel à l'API pour récupérer les données du client
-        response = requests.get(f"https://projet-7-service.onrender.com/predict", params={"client_id": client_id})
+        response = requests.get(f"https://projet-8-3xet.onrender.com/predict", params={"client_id": client_id})
         
         # Vérifie si la requête est réussie
         if response.status_code == 200:
@@ -49,7 +49,7 @@ if st.button("Afficher les features les plus importants"):
     # Vérifie si l'ID du client n'est pas vide
     if client_id:
         # Appel à l'API pour récupérer les features les plus importants
-        response = requests.get(f"https://projet-7-service.onrender.com/top_features", params={"client_id": client_id})
+        response = requests.get(f"https://projet-8-3xet.onrender.com/top_features", params={"client_id": client_id})
         
         # Vérifie si la requête est réussie
         if response.status_code == 200:
@@ -128,7 +128,7 @@ if st.button("Afficher l'analyse bi-variée"):
 # Bouton pour récupérer l'importance globale des features
 if st.button("Afficher l'importance globale des features"):
     # Appel à l'API pour récupérer l'importance globale des features
-    response = requests.get(f"https://projet-7-service.onrender.com/global_feature_importance")
+    response = requests.get(f"https://projet-8-3xet.onrender.com/global_feature_importance")
     
     # Vérifie si la requête est réussie
     if response.status_code == 200:
