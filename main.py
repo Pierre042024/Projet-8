@@ -108,6 +108,35 @@ def get_top_features(client_id: int):
 
     return result_table
 
+# Nouvelle route pour obtenir l'importance globale des features
+@app.get("/global_feature_importance")
+def global_feature_importance():
+    # Extraire le modèle LightGBM du pipeline
+    lgbm_scorer = model.named_steps['classifier']
+    
+    # Créer le DataFrame à partir de clients_df sans 'SK_ID_CURR' et 'TARGET'
+    X_test_df = clients_df.drop(columns=['SK_ID_CURR', 'TARGET'])
+
+    # Fits the explainer
+    explainer = shap.TreeExplainer(lgbm_scorer)
+
+    # Calculates the SHAP values
+    shap_values = explainer.shap_values(X_test_df)
+
+    # Get the mean absolute shap values for each feature
+    feature_importance = np.abs(shap_values[1]).mean(axis=0)
+    
+    # Extraire les noms des features
+    feature_names = X_test_df.columns.tolist()
+    
+    # Créer un dictionnaire pour l'importance des features
+    importance_table = [{"feature": feature, "importance": importance} for feature, importance in zip(feature_names, feature_importance)]
+    
+    # Trier les features par importance
+    importance_table = sorted(importance_table, key=lambda x: x['importance'], reverse=True)
+    
+    return json.dumps(importance_table)
+
 # Exécution du serveur
 if __name__ == "__main__":
     import uvicorn
