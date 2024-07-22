@@ -101,3 +101,54 @@ if st.button("Afficher les distributions des features"):
             st.error("Client non trouvé. Veuillez vérifier l'ID du client.")
     else:
         st.warning("Veuillez entrer un ID de client.")
+        
+# Fonction pour afficher le graphique d'analyse bi-variée
+def plot_bivariate_analysis(feature1, feature2, client_id):
+    fig = px.scatter(clients_df, x=feature1, y=feature2, color='TARGET', title=f"Analyse bi-variée : {feature1} vs {feature2}", labels={feature1: feature1, feature2: feature2}, color_continuous_scale=px.colors.sequential.Viridis)
+    
+    # Ajouter le point du client
+    client_data = clients_df[clients_df['SK_ID_CURR'] == int(client_id)]
+    if not client_data.empty:
+        client_value1 = client_data[feature1].values[0]
+        client_value2 = client_data[feature2].values[0]
+        fig.add_trace(go.Scatter(x=[client_value1], y=[client_value2], mode='markers', marker=dict(color='red', size=12), name='Client'))
+    
+    return fig
+
+# Bouton pour afficher l'analyse bi-variée
+if st.button("Afficher l'analyse bi-variée"):
+    # Vérifie si l'ID du client n'est pas vide
+    if client_id:
+        st.write(f"Analyse bi-variée entre {selected_feature1} et {selected_feature2}")
+        fig = plot_bivariate_analysis(selected_feature1, selected_feature2, client_id)
+        st.plotly_chart(fig)
+    else:
+        st.warning("Veuillez entrer un ID de client.")
+        
+# Bouton pour récupérer l'importance globale des features
+if st.button("Afficher l'importance globale des features"):
+    # Appel à l'API pour récupérer l'importance globale des features
+    response = requests.get("https://projet-8-3xet.onrender.com/global_feature_importance")
+    
+    # Vérifie si la requête est réussie
+    if response.status_code == 200:
+        try:
+            global_importance = response.json()
+            
+            # Préparer les données pour le graphique
+            features = [feature['feature'] for feature in global_importance]
+            importances = [feature['importance'] for feature in global_importance]
+            data = pd.DataFrame({'Feature': features, 'Importance': importances})
+            
+            # Créer le graphique avec Plotly
+            fig = px.bar(data, x='Importance', y='Feature', orientation='h', title="Importance globale des features")
+            st.plotly_chart(fig)
+        
+        except json.JSONDecodeError as e:
+            st.error(f"Erreur JSON lors de la récupération de l'importance globale des features : {e}")
+        
+        except Exception as e:
+            st.error(f"Erreur inattendue lors de la récupération de l'importance globale des features : {e}")
+    
+    else:
+        st.error("Erreur lors de la récupération de l'importance globale des features.")
